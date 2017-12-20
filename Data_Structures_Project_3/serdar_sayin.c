@@ -2,7 +2,7 @@
  
 #include <stdio.h>
 #include <stdlib.h>
- 
+#include  <string.h>
 // A structure to represent an adjacency list node
 struct AdjListNode
 {
@@ -73,7 +73,7 @@ void printGraph(struct Graph* graph)
     for (v = 0; v < graph->V; ++v)
     {
         struct AdjListNode* pCrawl = graph->array[v].head;
-        printf("\n Adjacency list of vertex %d\n head ", v);
+        printf(" %d", v);
         while (pCrawl)
         {
             printf("-> %d", pCrawl->dest);
@@ -82,17 +82,67 @@ void printGraph(struct Graph* graph)
         printf("\n");
     }
 }
-void BFS(Graph *g ,AdjList *s ){
-    for (int i = 0; i < g->V; ++i)
-    {
+  
+void readFile(FILE *file){
+    int wordLongCounter = 0;
+    int c;
+    char array[30];
+   
+     if (file) {
+    while ((c = getc(file)) != EOF){
+    if (c == 44)
+        {
+            printf("%s\n",array );
+            memset(array, 0, sizeof array);
+            wordLongCounter = 0;
+        }
+        // We just take input as numbers and and letters.
+        if (c !=44)
+        {
+            array[wordLongCounter] = (char)c;
+            wordLongCounter ++;
+        }
        
+        // if(c =='\n'){
+        //     printf("%s\n","New line");
+        // }
     }
-}   
+    fclose(file);
+   }
+}
+void bfs(struct Graph* g){
+	int i = 0;
+	// Her yeni array indexinde bir vertex in tuttugu ona baglı nodelar var.
+	// 0 dan başlayıp komşuların hepsine tek tek renk verip sıradaki array indexine geçmem gerek.
+	while(i<g->V){
+		printf("%s\n", " ");
+	while(g->array[i].head != NULL){
+	
+	printf("%d ",g->array[i].head->dest);
+	g->array[i].head = g->array[i].head->next;
+	}
+	printf("%s\n","Finished first vertex" );
+	i++;
+	}
+}
+void dfs(struct Graph* g){
+	int i = 0;
 
+	while(g->array[i].head != NULL && i < g->V){
+		printf("%d \n",g->array[i].head->dest);
+		i++;
+	}
+
+}
 
 // Driver program to test above functions
 int main()
 {
+    int wordLongCounter = 0;
+    int c;
+    char array[30];
+    FILE *file;
+    file = fopen("input.txt", "r");
     // create the graph given in above fugure
     int V = 5;
     struct Graph* graph = createGraph(V);
@@ -107,6 +157,9 @@ int main()
     // print the adjacency list representation of the above graph
     printGraph(graph);
     
+    //dfs(graph);
+    //bfs(graph);
+   // readFile(file);
  
     return 0;
 }
