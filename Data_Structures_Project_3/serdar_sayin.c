@@ -6,8 +6,10 @@
 // A structure to represent an adjacency list node
 struct AdjListNode
 {
+    char color;
     int dest;
     struct AdjListNode* next;
+
 };
  
 // A structure to represent an adjacency list
@@ -29,6 +31,7 @@ struct AdjListNode* newAdjListNode(int dest)
 {
     struct AdjListNode* newNode =
             (struct AdjListNode*) malloc(sizeof(struct AdjListNode));
+    newNode->color = 'a';
     newNode->dest = dest;
     newNode->next = NULL;
     return newNode;
@@ -72,12 +75,13 @@ void printGraph(struct Graph* graph)
     int v;
     for (v = 0; v < graph->V; ++v)
     {
-        struct AdjListNode* pCrawl = graph->array[v].head;
-        printf(" %d", v);
-        while (pCrawl)
+        struct AdjList* currentList = &graph->array[v];
+        //printf(" %d %s ", v,"Fake Vertex");
+        while (currentList->head)
         {
-            printf("-> %d", pCrawl->dest);
-            pCrawl = pCrawl->next;
+            printf("-> %d", currentList->head->dest);
+            printf("%c",currentList->head->color );
+            currentList->head = currentList->head->next;
         }
         printf("\n");
     }
@@ -120,19 +124,29 @@ void bfs(struct Graph* g){
 	
 	printf("%d ",g->array[i].head->dest);
 	g->array[i].head = g->array[i].head->next;
+
 	}
 	printf("%s\n","Finished first vertex" );
 	i++;
 	}
 }
+void dfsVist(struct AdjList u){
+    if(u.head->next.color == 'a'){
+        u.head->next.color = 'b';
+        dfsVisit(u.head->next);
+    }
+}
 void dfs(struct Graph* g){
 	int i = 0;
-
-	while(g->array[i].head != NULL && i < g->V){
-		printf("%d \n",g->array[i].head->dest);
-		i++;
-	}
-
+	for (int i = 0; i < g->V; ++i){
+        if (g->array[i].head->color == 'a')
+        {
+            g->array[i].head->color == 'b'
+            printf("%s","Header Colored" );
+            dfsVist(g->array[i]);      
+        }
+    i++;
+    }
 }
 
 // Driver program to test above functions
@@ -155,9 +169,10 @@ int main()
     addEdge(graph, 3, 4);
  
     // print the adjacency list representation of the above graph
-    printGraph(graph);
     
-    //dfs(graph);
+    
+    dfs(graph);
+    printGraph(graph);
     //bfs(graph);
    // readFile(file);
  
