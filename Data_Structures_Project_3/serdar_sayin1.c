@@ -140,20 +140,7 @@ void findAndAdd(Graph* graph,int sourceValue,int targetValue){
 
 }
 
-void printGraphVertex(Graph* graph){
-	vertexNode* temp = (vertexNode*)malloc(sizeof(vertexNode));
-	if (graph->header->nextVertex != NULL){
-		temp = graph->header->nextVertex;
-	}
-	else{
-		printf("%s\n","This graph is empty" );
-	}
-	while(temp != NULL){
-		printf("%d\n",temp->value);
-		temp = temp->nextVertex;
-	}
-}
-void printGraphEdge(Graph* graph){
+void printGraph(Graph* graph){
 	vertexNode* temp = (vertexNode*)malloc(sizeof(vertexNode));
 	if (graph->header->nextVertex != NULL )
 	{
@@ -164,13 +151,17 @@ void printGraphEdge(Graph* graph){
 		}
 		else{
 			
+
+			while(temp!= NULL){
+				printf("%d ",temp->value );
 			while(temp->edgeHeader->nextEdge != NULL){
-				printf("%s %d ","->",temp->edgeHeader->nextEdge->refAddress );
+				printf("%s %d ","->",temp->edgeHeader->nextEdge->refAddress->value );
 				temp->edgeHeader->nextEdge = temp->edgeHeader->nextEdge->nextEdge;	
 			}
 			printf("%s\n"," " );
 			temp = temp->nextVertex;
-		
+
+			}
 		}
 	}
 }
@@ -180,16 +171,20 @@ int main()
  	addNewVertex(graph,3);
  	addNewVertex(graph,5);
  	addNewVertex(graph,6);
+ 	addNewVertex(graph,7);
+ 	addNewVertex(graph,8);
  	addNewVertex(graph,67);
  	//printf("%c\n",graph->header->nextVertex->color );
- 	printGraphVertex(graph);
  	findAndAdd(graph,3,5);
  	findAndAdd(graph,5,6);
  	findAndAdd(graph,6,67);
  	findAndAdd(graph,3,67);
  	findAndAdd(graph,3,6);
  	findAndAdd(graph,5,67);
- 	printGraphEdge(graph);
+ 	findAndAdd(graph,8,7);
+ 	findAndAdd(graph,5,67);
+
+ 	printGraph(graph);
 
     return 0;
 }
