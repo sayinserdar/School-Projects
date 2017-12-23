@@ -35,11 +35,16 @@ Graph* createGraph()
 void addNewVertex(Graph* graph,int value){
 	vertexNode* newNode = (vertexNode*)malloc(sizeof(vertexNode));
 	vertexNode* temp = (vertexNode*)malloc(sizeof(vertexNode));
+	edgeNode* newEdgeHeader = (edgeNode*)malloc(sizeof(edgeNode));
+
+	newEdgeHeader->refAddress = NULL;
+	newEdgeHeader->nextEdge =NULL;
+
 	temp = graph->header;
 	newNode->value = value;
 	newNode->color = 'A';
 	newNode->nextVertex = NULL;
-	newNode->edgeHeader = NULL;
+	newNode->edgeHeader = newEdgeHeader;
 
 	if (temp->nextVertex == NULL)
 	{	
@@ -65,33 +70,32 @@ edgeNode* newEdge(vertexNode* refNode){
 	return node;
 }
 void addEdge(vertexNode* v1, vertexNode* v2){
-	vertexNode* temp1 = (vertexNode*)malloc(sizeof(vertexNode));
-	vertexNode* temp2 = (vertexNode*)malloc(sizeof(vertexNode));
-	temp1 = v1;
-	temp2 = v2;
+	edgeNode* temp1 = (edgeNode*)malloc(sizeof(edgeNode));
+	edgeNode* temp2 = (edgeNode*)malloc(sizeof(edgeNode));
+	temp1 = v1->edgeHeader;
+	temp2 = v2->edgeHeader;
 	edgeNode* edge1 = newEdge(v2);
 	edgeNode* edge2 = newEdge(v1);
 
 	// Handling vertex1
-	if (temp1->edgeHeader == NULL){
-		temp1->edgeHeader = edge1;
+	if (temp1->nextEdge == NULL){
+		v1->edgeHeader->nextEdge = edge1;
 	}
 	else{
-		while(temp1->edgeHeader != NULL){
-			temp1->edgeHeader = temp1->edgeHeader->nextEdge;
-
+		while(temp1->nextEdge != NULL){
+			temp1 = temp1->nextEdge;
 		}
-		temp1->edgeHeader = edge1;
+		temp1->nextEdge = edge1;
 	}
 	// Handling vertex 2
-	if (temp2->edgeHeader == NULL){
-		temp2->edgeHeader = edge2;
+	if (temp2->nextEdge == NULL){
+		v2->edgeHeader->nextEdge = edge2;
 	}
 	else{
-		while(temp2->edgeHeader != NULL){
-			temp2->edgeHeader = temp2->edgeHeader->nextEdge;
+		while(temp2->nextEdge != NULL){
+			temp2 = temp2->nextEdge;
 		}
-		temp2->edgeHeader = edge2;
+		temp2->nextEdge = edge2;
 	}
 
 }
@@ -160,9 +164,9 @@ void printGraphEdge(Graph* graph){
 		}
 		else{
 			
-			while(temp->edgeHeader != NULL){
-				//printf("%s %d ","->",temp->edgeHeader->refAddress );
-				temp->edgeHeader = temp->edgeHeader->nextEdge;	
+			while(temp->edgeHeader->nextEdge != NULL){
+				printf("%s %d ","->",temp->edgeHeader->nextEdge->refAddress );
+				temp->edgeHeader->nextEdge = temp->edgeHeader->nextEdge->nextEdge;	
 			}
 			printf("%s\n"," " );
 			temp = temp->nextVertex;
@@ -185,7 +189,7 @@ int main()
  	findAndAdd(graph,3,67);
  	findAndAdd(graph,3,6);
  	findAndAdd(graph,5,67);
- 	//printGraphEdge(graph);
+ 	printGraphEdge(graph);
 
     return 0;
 }
