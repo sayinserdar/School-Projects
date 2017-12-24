@@ -185,14 +185,20 @@ void printGraph(Graph* graph){
 // }
 void dfsVisit(vertexNode* v){
 	while(v->edgeHeader->nextEdge != NULL){
+
+
 	if(v->edgeHeader->nextEdge->refAddress->color == 'A'){
-		printf("%s\n","Edge" );
+
+		printf("%d %s \n",v->edgeHeader->nextEdge->refAddress->value,"IN DFSVISIT");
+
         v->edgeHeader->nextEdge->refAddress->color = 'B';
+
 		dfsVisit(v->edgeHeader->nextEdge->refAddress);
 
 	}
         if(v->edgeHeader->nextEdge->nextEdge != NULL)
         v->edgeHeader->nextEdge = v->edgeHeader->nextEdge->nextEdge;
+
         else
             break;
 	}
@@ -205,7 +211,8 @@ void dfs(Graph* graph){
 	temp = graph->header->nextVertex;
 	while(temp != NULL){
 	if(temp->color == 'A'){
-		printf("%s\n","vertex");
+		temp->color = 'B';
+		printf("%d %s \n",temp->value,"IN DFS");
 		dfsVisit(temp);
 	}
 	temp= temp->nextVertex;
@@ -223,23 +230,22 @@ int main()
 	// else
 	// 	perror("Dfs with no vertex :) ");
 	Graph* graph = createGraph();
- 	addNewVertex(graph,3);
- 	addNewVertex(graph,5);
- 	addNewVertex(graph,6);
- 	addNewVertex(graph,7);
- 	addNewVertex(graph,8);
- 	addNewVertex(graph,67);
- 	//printf("%c\n",graph->header->nextVertex->color );
- 	findAndAdd(graph,3,5);
- 	findAndAdd(graph,5,6);
- 	findAndAdd(graph,6,67);
- 	findAndAdd(graph,3,67);
- 	findAndAdd(graph,3,6);
- 	findAndAdd(graph,5,67);
- 	findAndAdd(graph,8,7);
- 	findAndAdd(graph,5,67);
-	dfs(graph);
+ 	addNewVertex(graph,70);
+ 	addNewVertex(graph,71);
+ 	addNewVertex(graph,72);
+ 	addNewVertex(graph,73);
+ 	addNewVertex(graph,74);
+ 	addNewVertex(graph,75);
+
+ 	findAndAdd(graph,74,75);
+ 	findAndAdd(graph,74,72);
+ 	findAndAdd(graph,72,70);
+ 	findAndAdd(graph,70,71);
+ 	findAndAdd(graph,71,73);
+ 	findAndAdd(graph,73,75);
  	printGraph(graph);
+	//dfs(graph);
+ 	//printGraph(graph);
 
 
  	//dfs(graph,vertexNode* a);
