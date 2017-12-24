@@ -29,7 +29,7 @@ Graph* createGraph()
     header->nextVertex = NULL;
     header->edgeHeader = NULL;
     header->value = -1;
-    header->color = 'a';
+    header->color = 'A';
     return graph;
 }
 void addNewVertex(Graph* graph,int value){
@@ -47,7 +47,7 @@ void addNewVertex(Graph* graph,int value){
 	newNode->edgeHeader = newEdgeHeader;
 
 	if (temp->nextVertex == NULL)
-	{	
+	{
 		graph->header->nextVertex = newNode;
 	}
 	else{
@@ -60,7 +60,7 @@ void addNewVertex(Graph* graph,int value){
 		}
 		temp->nextVertex = newNode;
 	}
-	
+
 
 }
 edgeNode* newEdge(vertexNode* refNode){
@@ -126,7 +126,7 @@ void findAndAdd(Graph* graph,int sourceValue,int targetValue){
 
 
 		if (foundSource == 1 && foundTarget == 1)
-		{	
+		{
 			//printf("%s %d %s %d \n","foundSource:",foundSource,"foundTarget",foundTarget );
 			addEdge(targetVertex,sourceVertex);
 		}
@@ -135,7 +135,7 @@ void findAndAdd(Graph* graph,int sourceValue,int targetValue){
 	}
 	else
 	perror("You can't add vertex to its own" );
-	
+
 	printf("%s\n","Succesful" );
 
 }
@@ -150,13 +150,13 @@ void printGraph(Graph* graph){
 			perror("No edge found");
 		}
 		else{
-			
+
 
 			while(temp!= NULL){
 				printf("%d ",temp->value );
 			while(temp->edgeHeader->nextEdge != NULL){
 				printf("%s %d ","->",temp->edgeHeader->nextEdge->refAddress->value );
-				temp->edgeHeader->nextEdge = temp->edgeHeader->nextEdge->nextEdge;	
+				temp->edgeHeader->nextEdge = temp->edgeHeader->nextEdge->nextEdge;
 			}
 			printf("%s\n"," " );
 			temp = temp->nextVertex;
@@ -165,8 +165,63 @@ void printGraph(Graph* graph){
 		}
 	}
 }
+// void bfs(Graph* graph,vertexNode *v){
+// 	edgeNode* temp = (edgeNode*)malloc(sizeof(edgeNode));
+// 	if (graph->header->nextVertex !=NULL){
+// 		temp = graph->header->nextVertex->edgeHeader->nextEdge;
+// 		while(temp->nextEdge != NULL){
+// 		if (temp->refAddress->color == 'A')
+// 		{
+// 			temp->refAddress->color = 'B';
+// 			bfs(graph,temp->refAddress);
+// 		}
+// 		else
+// 		temp = temp->nextEdge;
+// 		}
+// 	}
+// 	else
+// 		perror("Bfs with no vertex hmmmm ");
+
+// }
+void dfsVisit(vertexNode* v){
+	while(v->edgeHeader->nextEdge != NULL){
+	if(v->edgeHeader->nextEdge->refAddress->color == 'A'){
+		printf("%s\n","Edge" );
+        v->edgeHeader->nextEdge->refAddress->color = 'B';
+		dfsVisit(v->edgeHeader->nextEdge->refAddress);
+
+	}
+        if(v->edgeHeader->nextEdge->nextEdge != NULL)
+        v->edgeHeader->nextEdge = v->edgeHeader->nextEdge->nextEdge;
+        else
+            break;
+	}
+
+
+}
+
+void dfs(Graph* graph){
+	vertexNode* temp = (vertexNode*) malloc(sizeof(vertexNode));
+	temp = graph->header->nextVertex;
+	while(temp != NULL){
+	if(temp->color == 'A'){
+		printf("%s\n","vertex");
+		dfsVisit(temp);
+	}
+	temp= temp->nextVertex;
+}
+
+}
 int main()
 {
+
+
+	// if (graph->header->nextVertex !=NULL){
+	// 	temp = graph->header->nextVertex;
+	// }
+
+	// else
+	// 	perror("Dfs with no vertex :) ");
 	Graph* graph = createGraph();
  	addNewVertex(graph,3);
  	addNewVertex(graph,5);
@@ -183,8 +238,11 @@ int main()
  	findAndAdd(graph,5,67);
  	findAndAdd(graph,8,7);
  	findAndAdd(graph,5,67);
-
+	dfs(graph);
  	printGraph(graph);
+
+
+ 	//dfs(graph,vertexNode* a);
 
     return 0;
 }
