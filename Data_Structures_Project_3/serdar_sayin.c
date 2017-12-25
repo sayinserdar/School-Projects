@@ -1,180 +1,260 @@
-// A C Program to demonstrate adjacency list representation of graphs
- 
 #include <stdio.h>
 #include <stdlib.h>
 #include  <string.h>
-// A structure to represent an adjacency list node
-struct AdjListNode
-{
-    char color;
-    int dest;
-    struct AdjListNode* next;
 
-};
- 
-// A structure to represent an adjacency list
-struct AdjList
+typedef struct graph{
+
+    struct vertexNode *header;
+}Graph;
+
+typedef struct vertexNode{
+
+    int value;
+    char color;
+    struct vertexNode *nextVertex;
+    struct edgeNode *edgeHeader;
+}vertexNode;
+
+typedef struct edgeNode{
+
+    struct edgeNode *nextEdge;
+    struct vertexNode *refAddress;
+}edgeNode;
+
+Graph* createGraph()
 {
-    struct AdjListNode *head;  // pointer to head node of list
-};
- 
-// A structure to represent a graph. A graph is an array of adjacency lists.
-// Size of array will be V (number of vertices in graph)
-struct Graph
-{
-    int V;
-    struct AdjList* array;
-};
- 
-// A utility function to create a new adjacency list node
-struct AdjListNode* newAdjListNode(int dest)
-{
-    struct AdjListNode* newNode =
-            (struct AdjListNode*) malloc(sizeof(struct AdjListNode));
-    newNode->color = 'a';
-    newNode->dest = dest;
-    newNode->next = NULL;
-    return newNode;
-}
- 
-// A utility function that creates a graph of V vertices
-struct Graph* createGraph(int V)
-{
-    struct Graph* graph = (struct Graph*) malloc(sizeof(struct Graph));
-    graph->V = V;
- 
-    // Create an array of adjacency lists.  Size of array will be V
-    graph->array = (struct AdjList*) malloc(V * sizeof(struct AdjList));
- 
-     // Initialize each adjacency list as empty by making head as NULL
-    int i;
-    for (i = 0; i < V; ++i)
-        graph->array[i].head = NULL;
- 
+    Graph* graph = (Graph*) malloc(sizeof(Graph));
+    vertexNode *header = (vertexNode*) malloc(sizeof(vertexNode));
+    graph->header = header;
+    header->nextVertex = NULL;
+    header->edgeHeader = NULL;
+    header->value = -1;
+    header->color = 'A';
     return graph;
 }
- 
-// Adds an edge to an undirected graph
-void addEdge(struct Graph* graph, int src, int dest)
-{
-    // Add an edge from src to dest.  A new node is added to the adjacency
-    // list of src.  The node is added at the begining
-    struct AdjListNode* newNode = newAdjListNode(dest);
-    newNode->next = graph->array[src].head;
-    graph->array[src].head = newNode;
- 
-    // Since graph is undirected, add an edge from dest to src also
-    newNode = newAdjListNode(src);
-    newNode->next = graph->array[dest].head;
-    graph->array[dest].head = newNode;
-}
- 
-// A utility function to print the adjacenncy list representation of graph
-void printGraph(struct Graph* graph)
-{
-    int v;
-    for (v = 0; v < graph->V; ++v)
+void addNewVertex(Graph* graph,int value){
+    vertexNode* newNode = (vertexNode*)malloc(sizeof(vertexNode));
+    vertexNode* temp = (vertexNode*)malloc(sizeof(vertexNode));
+    edgeNode* newEdgeHeader = (edgeNode*)malloc(sizeof(edgeNode));
+
+    newEdgeHeader->refAddress = NULL;
+    newEdgeHeader->nextEdge = NULL;
+
+    temp = graph->header;
+    newNode->value = value;
+    newNode->color = 'A';
+    newNode->nextVertex = NULL;
+    newNode->edgeHeader = newEdgeHeader;
+
+    if (temp->nextVertex == NULL)
     {
-        struct AdjList* currentList = &graph->array[v];
-        //printf(" %d %s ", v,"Fake Vertex");
-        while (currentList->head)
-        {
-            printf("-> %d", currentList->head->dest);
-            printf("%c",currentList->head->color );
-            currentList->head = currentList->head->next;
-        }
-        printf("\n");
+        graph->header->nextVertex = newNode;
     }
-}
-  
-void readFile(FILE *file){
-    int wordLongCounter = 0;
-    int c;
-    char array[30];
-   
-     if (file) {
-    while ((c = getc(file)) != EOF){
-    if (c == 44)
-        {
-            printf("%s\n",array );
-            memset(array, 0, sizeof array);
-            wordLongCounter = 0;
+    else{
+        while(temp->nextVertex != NULL){
+            if (temp->nextVertex->value == value)
+            {
+                break;
+            }
+            temp = temp->nextVertex;
         }
-        // We just take input as numbers and and letters.
-        if (c !=44)
-        {
-            array[wordLongCounter] = (char)c;
-            wordLongCounter ++;
-        }
-       
-        // if(c =='\n'){
-        //     printf("%s\n","New line");
-        // }
+        temp->nextVertex = newNode;
     }
-    fclose(file);
-   }
-}
-void bfs(struct Graph* g){
-	int i = 0;
-	// Her yeni array indexinde bir vertex in tuttugu ona baglı nodelar var.
-	// 0 dan başlayıp komşuların hepsine tek tek renk verip sıradaki array indexine geçmem gerek.
-	while(i<g->V){
-		printf("%s\n", " ");
-	while(g->array[i].head != NULL){
-	
-	printf("%d ",g->array[i].head->dest);
-	g->array[i].head = g->array[i].head->next;
 
-	}
-	printf("%s\n","Finished first vertex" );
-	i++;
-	}
+
 }
-void dfsVist(struct AdjList u){
-    if(u.head->next.color == 'a'){
-        u.head->next.color = 'b';
-        dfsVisit(u.head->next);
+edgeNode* newEdge(vertexNode* refNode){
+    edgeNode* node = (edgeNode*)malloc(sizeof(edgeNode));
+    node->nextEdge = NULL;
+    node->refAddress = refNode;
+    return node;
+}
+void addEdge(vertexNode* v1, vertexNode* v2){
+    edgeNode* current1 = (edgeNode*)malloc(sizeof(edgeNode));
+    edgeNode* current2 = (edgeNode*)malloc(sizeof(edgeNode));
+    edgeNode* previous1 = NULL;
+    edgeNode* previous2 = NULL;
+
+    current1 = v1->edgeHeader;
+    current2 = v2->edgeHeader;
+    edgeNode* edge1 = newEdge(v2);
+    edgeNode* edge2 = newEdge(v1);
+
+    // Handling vertex1
+    if (current1->nextEdge == NULL || current1->nextEdge->refAddress->value > v2->value){
+        edge1->nextEdge = v1->edgeHeader->nextEdge;
+        v1->edgeHeader->nextEdge = edge1;
     }
-}
-void dfs(struct Graph* g){
-	int i = 0;
-	for (int i = 0; i < g->V; ++i){
-        if (g->array[i].head->color == 'a')
-        {
-            g->array[i].head->color == 'b'
-            printf("%s","Header Colored" );
-            dfsVist(g->array[i]);      
+    else{
+        while(current1->nextEdge != NULL && current1->nextEdge->refAddress->value < v2->value){
+            current1 = current1->nextEdge;
         }
-    i++;
+        edge1->nextEdge = current1->nextEdge;
+        current1->nextEdge =edge1;
+    }
+
+    //Previous Node-> New Node -> Next Node;
+    // Handling vertex 2
+    if (current2->nextEdge == NULL || current2->nextEdge->refAddress->value > v1->value){
+        edge2->nextEdge = v2->edgeHeader->nextEdge;
+        v2->edgeHeader->nextEdge = edge2;
+    }
+    else{
+        while(current2->nextEdge != NULL && current2->nextEdge->refAddress->value < v1->value){
+            current2 = current2->nextEdge;
+        }
+        edge2->nextEdge = current2->nextEdge;
+        current2->nextEdge =edge2;
+    }
+
+}
+void findAndAdd(Graph* graph,int sourceValue,int targetValue){
+    vertexNode* sourceVertex = (vertexNode*)malloc(sizeof(vertexNode));
+    vertexNode* targetVertex = (vertexNode*)malloc(sizeof(vertexNode));
+    sourceVertex = graph->header->nextVertex;
+    targetVertex = graph->header->nextVertex;
+    int foundSource = 0;
+    int foundTarget = 0;
+
+    if (sourceValue != targetValue){
+
+        while(sourceVertex != NULL || sourceVertex->value != sourceValue){
+            if (sourceVertex->value == sourceValue){
+                foundSource = 1;
+                break;
+            }
+            sourceVertex = sourceVertex->nextVertex;
+        }
+
+        while(targetVertex != NULL || targetVertex->value != targetValue){
+            if (targetVertex->value == targetValue){
+                foundTarget = 1;
+                break;
+            }
+            targetVertex = targetVertex->nextVertex;
+        }
+
+
+        if (foundSource == 1 && foundTarget == 1)
+        {
+            //printf("%s %d %s %d \n","foundSource:",foundSource,"foundTarget",foundTarget );
+            addEdge(sourceVertex,targetVertex);
+        }
+
+
+
+        else
+            perror("One of the vertex node is missing");
+
+
+    }
+    else
+        perror("You can't add vertex to its own" );
+
+    printf("%s\n","Succesful" );
+
+}
+
+void printGraph(Graph* graph){
+    vertexNode* temp = (vertexNode*)malloc(sizeof(vertexNode));
+    if (graph->header->nextVertex != NULL )
+    {
+        temp = graph->header->nextVertex;
+        if (temp->edgeHeader == NULL)
+        {
+
+            while (temp->nextVertex->edgeHeader != NULL){
+                printf("%d %s",temp->nextVertex->value,"->");
+                temp = temp->nextVertex;
+            }
+        }
+
+            while(temp!= NULL){
+                printf("%d ",temp->value );
+                while(temp->edgeHeader->nextEdge != NULL){
+                    printf("%s %d ","->",temp->edgeHeader->nextEdge->refAddress->value );
+                    temp->edgeHeader->nextEdge = temp->edgeHeader->nextEdge->nextEdge;
+                }
+                printf("%s\n"," " );
+                temp = temp->nextVertex;
+
+            }
+
     }
 }
 
-// Driver program to test above functions
+void dfsVisit(vertexNode* v){
+    while(v->edgeHeader->nextEdge != NULL){
+
+
+            if(v->edgeHeader->nextEdge->refAddress->color == 'A'){
+
+                printf("%d %s \n",v->edgeHeader->nextEdge->refAddress->value,"IN DFSVISIT");
+
+                v->edgeHeader->nextEdge->refAddress->color = 'B';
+
+                dfsVisit(v->edgeHeader->nextEdge->refAddress);
+
+            }
+
+        if(v->edgeHeader->nextEdge->nextEdge != NULL)
+            v->edgeHeader->nextEdge = v->edgeHeader->nextEdge->nextEdge;
+
+        else
+            break;
+    }
+
+
+}
+
+void dfs(Graph* graph){
+    vertexNode* temp = (vertexNode*) malloc(sizeof(vertexNode));
+    temp = graph->header->nextVertex;
+    while(temp != NULL){
+        if(temp->color == 'A'){
+            temp->color = 'B';
+            printf("%d %s \n",temp->value,"IN DFS");
+            dfsVisit(temp);
+        }
+        printf("%s","Finished?");
+        temp= temp->nextVertex;
+
+    }
+
+}
 int main()
 {
-    int wordLongCounter = 0;
-    int c;
-    char array[30];
-    FILE *file;
-    file = fopen("input.txt", "r");
-    // create the graph given in above fugure
-    int V = 5;
-    struct Graph* graph = createGraph(V);
-    addEdge(graph, 0, 1);
-    addEdge(graph, 0, 4);
-    addEdge(graph, 1, 2);
-    addEdge(graph, 1, 3);
-    addEdge(graph, 1, 4);
-    addEdge(graph, 2, 3);
-    addEdge(graph, 3, 4);
- 
-    // print the adjacency list representation of the above graph
-    
-    
+
+    Graph* graph = createGraph();
+    addNewVertex(graph,3);
+    addNewVertex(graph,4);
+    addNewVertex(graph,5);
+    addNewVertex(graph,6);
+    addNewVertex(graph,7);
+    addNewVertex(graph,8);
+    addNewVertex(graph,9);
+    addNewVertex(graph,10);
+
+
+    findAndAdd(graph,3,5);
+    findAndAdd(graph,8,4);
+    findAndAdd(graph,7,3);
+    findAndAdd(graph,10,9);
+    findAndAdd(graph,6,8);
+    findAndAdd(graph,4,5);
+    findAndAdd(graph,6,3);
+
+
+
     dfs(graph);
-    printGraph(graph);
-    //bfs(graph);
-   // readFile(file);
- 
+
+
+
+    //dfs(graph);
+    // print(graph);
+
+
+    //dfs(graph,vertexNode* a);
+
     return 0;
 }
