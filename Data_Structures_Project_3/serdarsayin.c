@@ -11,6 +11,7 @@ typedef struct vertexNode{
 
     int value;
     char color;
+    int visited;
     struct vertexNode *nextVertex;
     struct edgeNode *edgeHeader;
 }vertexNode;
@@ -29,6 +30,7 @@ Graph* createGraph()
     header->nextVertex = NULL;
     header->edgeHeader = NULL;
     header->value = -1;
+    header->visited = -1;
     header->color = 'A';
     return graph;
 }
@@ -42,6 +44,7 @@ void addNewVertex(Graph* graph,int value){
 
     temp = graph->header;
     newNode->value = value;
+    newNode->visited = 0;
     newNode->color = 'A';
     newNode->nextVertex = NULL;
     newNode->edgeHeader = newEdgeHeader;
@@ -68,6 +71,18 @@ edgeNode* newEdge(vertexNode* refNode){
     node->nextEdge = NULL;
     node->refAddress = refNode;
     return node;
+}
+int isValid(vertexNode* v,int targetValue){
+    edgeNode* temp = (edgeNode*)malloc(sizeof(edgeNode));
+    temp = v->edgeHeader->nextEdge;
+    while (temp != NULL){
+        if(temp->refAddress->value == targetValue){
+            return 0;
+        }
+        temp = temp->nextEdge;
+    }
+    return 1;
+
 }
 void addEdge(vertexNode* v1, vertexNode* v2){
     edgeNode* current1 = (edgeNode*)malloc(sizeof(edgeNode));
@@ -116,9 +131,10 @@ void findAndAdd(Graph* graph,int sourceValue,int targetValue){
     int foundSource = 0;
     int foundTarget = 0;
 
-    if (sourceValue != targetValue){
+    if (sourceValue != targetValue && sourceVertex != NULL && targetVertex != NULL){
 
-        while(sourceVertex != NULL || sourceVertex->value != sourceValue){
+        while(sourceVertex != NULL ){
+
             if (sourceVertex->value == sourceValue){
                 foundSource = 1;
                 break;
@@ -135,23 +151,19 @@ void findAndAdd(Graph* graph,int sourceValue,int targetValue){
         }
 
 
-        if (foundSource == 1 && foundTarget == 1)
-        {
+        if ((foundSource == 1 && foundTarget == 1) && isValid(sourceVertex,targetValue)) {
             //printf("%s %d %s %d \n","foundSource:",foundSource,"foundTarget",foundTarget );
             addEdge(sourceVertex,targetVertex);
         }
-
-
-
         else
-            perror("One of the vertex node is missing");
+            perror("One of the vertex node is missing or you are trying to add same couple");
 
 
     }
     else
         perror("You can't add vertex to its own" );
 
-    printf("%s\n","Succesful" );
+
 
 }
 
@@ -169,33 +181,35 @@ void printGraph(Graph* graph){
             }
         }
 
-            while(temp!= NULL){
-                printf("%d ",temp->value );
-                while(temp->edgeHeader->nextEdge != NULL){
-                    printf("%s %d ","->",temp->edgeHeader->nextEdge->refAddress->value );
-                    temp->edgeHeader->nextEdge = temp->edgeHeader->nextEdge->nextEdge;
-                }
-                printf("%s\n"," " );
-                temp = temp->nextVertex;
-
+        while(temp!= NULL){
+            printf("%d ",temp->value );
+            while(temp->edgeHeader->nextEdge != NULL){
+                printf("%s %d ","->",temp->edgeHeader->nextEdge->refAddress->value );
+                temp->edgeHeader->nextEdge = temp->edgeHeader->nextEdge->nextEdge;
             }
+            printf("%s\n"," " );
+            temp = temp->nextVertex;
+
+        }
 
     }
 }
 
-void dfsVisit(vertexNode* v){
+void dfsVisit(vertexNode* v,char* color){
     while(v->edgeHeader->nextEdge != NULL){
 
 
-            if(v->edgeHeader->nextEdge->refAddress->color == 'A'){
+        if(v->edgeHeader->nextEdge->refAddress->visited == 0){
 
-                printf("%d %s \n",v->edgeHeader->nextEdge->refAddress->value,"IN DFSVISIT");
+            printf("%d %s \n",v->edgeHeader->nextEdge->refAddress->value,"IN DFSVISIT");
 
-                v->edgeHeader->nextEdge->refAddress->color = 'B';
+            v->edgeHeader->nextEdge->refAddress->visited = 1;
+            v->edgeHeader->nextEdge->refAddress->color = color[0];
+            printf("%c %d",v->edgeHeader->nextEdge->refAddress->color,v->edgeHeader->nextEdge->refAddress->value);
+            color++;
+            dfsVisit(v->edgeHeader->nextEdge->refAddress,color);
 
-                dfsVisit(v->edgeHeader->nextEdge->refAddress);
-
-            }
+        }
 
         if(v->edgeHeader->nextEdge->nextEdge != NULL)
             v->edgeHeader->nextEdge = v->edgeHeader->nextEdge->nextEdge;
@@ -209,45 +223,88 @@ void dfsVisit(vertexNode* v){
 
 void dfs(Graph* graph){
     vertexNode* temp = (vertexNode*) malloc(sizeof(vertexNode));
+    char *color = "qwertyuopsdfghjklzxcvbnm";
     temp = graph->header->nextVertex;
     while(temp != NULL){
-        if(temp->color == 'A'){
-            temp->color = 'B';
-            printf("%d %s \n",temp->value,"IN DFS");
-            dfsVisit(temp);
+        if(temp->visited == 0){
+            temp->color = color[0];
+            printf("%c %d ",temp->color,temp->value);
+            color ++;
+            temp->visited = 1;
+            //printf("%d %s \n",temp->value,"");
+            dfsVisit(temp,color);
         }
-        printf("%s","Finished?");
+        //printf("%s","Finished?");
         temp= temp->nextVertex;
 
     }
 
 }
+void addToGraph(Graph* graph,int array[20],int count){
+    for (int i = 0; i < count; ++i)
+    {
+        for (int j = 0; j < count; ++j)
+        {
+            findAndAdd(graph,array[i],array[j]);
+        }
+    }
+
+}
+void seperate(char* str,Graph* graph){
+    const char s[2] = ",";
+    char *token;
+    int count = 0;
+    int array[20];
+    /* get the first token */
+    token = strtok(str, s);
+
+    /* walk through other tokens */
+    while( token != NULL ) {
+        //printf("%s %s ", token ,"New Token");
+
+        if(token != NULL)
+            array[count] = *token;
+        token = strtok(NULL, s);
+
+        count++;
+    }
+    addToGraph(graph,array,count);
+}
 int main()
 {
 
     Graph* graph = createGraph();
-    addNewVertex(graph,3);
-    addNewVertex(graph,4);
-    addNewVertex(graph,5);
-    addNewVertex(graph,6);
-    addNewVertex(graph,7);
-    addNewVertex(graph,8);
-    addNewVertex(graph,9);
-    addNewVertex(graph,10);
+     addNewVertex(graph,3);
+     addNewVertex(graph,4);
+     addNewVertex(graph,5);
+     addNewVertex(graph,6);
+     addNewVertex(graph,7);
+     addNewVertex(graph,8);
+     addNewVertex(graph,9);
+     addNewVertex(graph,10);
 
 
-    findAndAdd(graph,3,5);
-    findAndAdd(graph,8,4);
-    findAndAdd(graph,7,3);
-    findAndAdd(graph,10,9);
-    findAndAdd(graph,6,8);
-    findAndAdd(graph,4,5);
-    findAndAdd(graph,6,3);
+     findAndAdd(graph,3,5);
+     findAndAdd(graph,8,4);
+     findAndAdd(graph,7,3);
+     findAndAdd(graph,10,9);
+     findAndAdd(graph,6,8);
+     findAndAdd(graph,4,5);
+     findAndAdd(graph,6,3);
+     findAndAdd(graph,6,3);
+     findAndAdd(graph,6,3);
+     findAndAdd(graph,6,3);
+     findAndAdd(graph,6,3);
+     findAndAdd(graph,6,3);
+
+    
+    // You cannot run printGraph and dfs at the same time because i messed up with pointers
+    // You need to choose one of them to run
+    //dfs(graph);
+    printGraph(graph);
 
 
-
-    dfs(graph);
-
+    
 
 
     //dfs(graph);
@@ -255,6 +312,21 @@ int main()
 
 
     //dfs(graph,vertexNode* a);
+    /*
+    addNewVertex(graph,58);
+    addNewVertex(graph,99);
+    FILE* file = fopen("input.txt", "r"); /* should check the result
+    char line[256];
+    const char ch = ':';
+    char *afterDoubleDot;
+    while (fgets(line, sizeof(line), file)) {
+        afterDoubleDot = memchr(line, ch, strlen(line));
+        seperate(afterDoubleDot,graph);
 
+    }
+
+
+    fclose(file);
+     */
     return 0;
 }
